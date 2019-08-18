@@ -21,7 +21,7 @@ libversion = '@0@.@1@.0'.format(soversion, interface_version, interface_age)
 # C compiler. This is the cross compiler if we're cross-compiling
 cc = meson.get_compiler('c')
 
-if cc.get_id() == 'gcc' and cc.has_argument('-ansi')
+if cc.get_id() in ['gcc', 'clang'] and cc.has_argument('-ansi')
   add_project_arguments('-ansi', language: 'c')
 endif
 
@@ -84,12 +84,15 @@ incs = include_directories('.', 'lib', 'gen.tab')
 
 subdir('gen.tab')
 subdir('lib')
+if host_machine.system() != 'web'
 subdir('bin')
 subdir('test')
+endif
 if get_option('docs')
   subdir('doc')
 endif
 
+if host_machine.system() != 'web'
 # fribidi.pc
 pkg = import('pkgconfig')
 pkg.generate(name: 'GNU FriBidi',
@@ -98,3 +101,4 @@ pkg.generate(name: 'GNU FriBidi',
   libraries: libfribidi, 
   subdirs: 'fribidi',
   version: meson.project_version())
+endif
